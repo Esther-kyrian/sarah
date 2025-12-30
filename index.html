@@ -1,0 +1,2610 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sarah IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/recordrtc@5.6.2/RecordRTC.js"></script>
+    <style>
+        * { font-family: 'Poppins', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); }
+        
+        .navbar-gradient { 
+            background: linear-gradient(90deg, #ff9800 0%, #ff5722 100%); 
+            box-shadow: 0 4px 20px rgba(255, 87, 34, 0.3);
+            animation: slideDown 0.5s ease-out;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .message-bubble-user { 
+            background-color: #ff9800; 
+            color: white; 
+            border-radius: 20px 20px 0 20px; 
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3); 
+            animation: messageAppear 0.3s ease-out; 
+        }
+        .message-bubble-ai { 
+            background: linear-gradient(135deg, #333333 0%, #444444 100%); 
+            color: white; 
+            border-radius: 20px 20px 20px 0; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); 
+            animation: messageAppear 0.3s ease-out; 
+        }
+        @keyframes messageAppear { 
+            from { opacity: 0; transform: translateY(20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        .slide-up { animation: slideUp 0.5s ease-out; }
+        @keyframes slideUp { 
+            from { transform: translateY(20px); opacity: 0; } 
+            to { transform: translateY(0); opacity: 1; } 
+        }
+        
+        .float-animation { animation: float 6s ease-in-out infinite; }
+        @keyframes float { 
+            0% { transform: translateY(0px); } 
+            50% { transform: translateY(-10px); } 
+            100% { transform: translateY(0px); } 
+        }
+        
+        .pulse-animation { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .bounce-animation { animation: bounce 1s infinite; }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .mobile-nav {
+            animation: slideInRight 0.3s ease-out;
+            transform-origin: top right;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .icon-spin { animation: spin 2s linear infinite; }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes notificationPulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 87, 34, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 87, 34, 0); }
+        }
+        .notification-pulse { animation: notificationPulse 2s infinite; }
+        
+        .btn-hover-effect {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-hover-effect:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        .btn-hover-effect:focus:after {
+            animation: ripple 1s ease-out;
+        }
+        @keyframes ripple {
+            0% { transform: scale(0, 0); opacity: 0.5; }
+            100% { transform: scale(20, 20); opacity: 0; }
+        }
+        
+        .call-ring { animation: callRing 2s infinite; }
+        @keyframes callRing { 
+            0% { transform: scale(1); } 
+            50% { transform: scale(1.05); } 
+            100% { transform: scale(1); } 
+        }
+        
+        .recording-indicator {
+            animation: recordingPulse 1.5s infinite;
+        }
+        @keyframes recordingPulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        
+        .video-call-container {
+            transition: all 0.3s ease;
+        }
+        
+        .voice-active {
+            animation: voicePulse 1.5s infinite;
+        }
+        @keyframes voicePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .fullscreen-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            background: #000;
+        }
+        
+        @media (max-width: 768px) { 
+            .mobile-stack { flex-direction: column; } 
+            .mobile-full { width: 100% !important; margin-bottom: 1rem; } 
+            .message-bubble-user, .message-bubble-ai { max-width: 90% !important; } 
+        }
+        
+        .loading-wave {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            height: 50px;
+        }
+        .loading-wave div {
+            width: 5px;
+            height: 25px;
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            border-radius: 5px;
+            animation: loadingWave 1.2s ease-in-out infinite;
+        }
+        @keyframes loadingWave {
+            0%, 60%, 100% { transform: initial; opacity: 0.6; }
+            30% { transform: translateY(-10px); opacity: 1; }
+        }
+        .loading-wave div:nth-child(2) { animation-delay: -1.1s; } 
+        .loading-wave div:nth-child(3) { animation-delay: -1.0s; } 
+        .loading-wave div:nth-child(4) { animation-delay: -0.9s; } 
+        .loading-wave div:nth-child(5) { animation-delay: -0.8s; }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff5722;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        
+        .generated-image {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .search-result {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            color: white;
+        }
+        
+        .search-link {
+            color: #bbdefb;
+            text-decoration: underline;
+        }
+        
+        .voice-selector {
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+            border: 2px solid #ff9800;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .language-selector {
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+            border: 2px solid #2196F3;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .conversation-history {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px;
+            background: #f9fafb;
+        }
+        
+        .conversation-item {
+            padding: 8px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.875rem;
+        }
+        
+        .question-bubble {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 12px;
+            margin: 10px 0;
+            animation: pulse 2s infinite;
+        }
+        
+        .emotion-indicator {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 1.2em;
+        }
+        
+        .flag-icon {
+            width: 20px;
+            height: 15px;
+            display: inline-block;
+            margin-right: 8px;
+            border-radius: 2px;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .flag-fr { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="1" height="2" x="0" fill="#002495"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#ED2938"/></svg>'); }
+        .flag-en { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30"><clipPath id="s"><path d="M0,0 v30 h60 v-30 z"/></clipPath><clipPath id="t"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath><g clip-path="url(#s)"><path d="M0,0 v30 h60 v-30 z" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#t)" stroke="#C8102E" stroke-width="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/><path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/></g></svg>'); }
+        
+        .language-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            background: rgba(33, 150, 243, 0.1);
+            color: #1976D2;
+            border: 1px solid #90CAF9;
+        }
+        
+        .navbar-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .navbar-dropdown.show {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .dropdown-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .language-change {
+            animation: languageChange 0.5s ease-out;
+        }
+        
+        @keyframes languageChange {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        .remote-video-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .remote-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 1;
+        }
+        
+        .remote-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+        
+        .remote-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        
+        .remote-status {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .lingala-phrase {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .phrase-translation {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .sarah-question {
+            background: linear-gradient(135deg, #7b1fa2 0%, #9c27b0 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #ff9800;
+            animation: pulse 2s infinite;
+        }
+        
+        .pronunciation-note {
+            font-size: 0.8em;
+            color: #ff9800;
+            font-style: italic;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex flex-col">
+    <!-- Navigation Bar -->
+    <nav class="navbar-gradient py-3 md:py-4 px-4 md:px-6 sticky top-0 z-50">
+        <div class="container mx-auto">
+            <!-- Desktop Navigation -->
+            <div class="hidden lg:flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="relative">
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white pulse-animation">
+                            <img src="SARAH AI.jpg" alt="Sarah IA" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-green-500 rounded-full flex items-center justify-center notification-pulse">
+                            <i class="fas fa-bolt text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3 md:ml-4">
+                        <h1 class="text-lg md:text-xl font-bold text-white">Sarah IA</h1>
+                        <div class="flex items-center mt-1">
+                            <div id="currentLanguageBadge" class="language-badge">
+                                <img src="SARAH AI.jpg" alt="Sarah IA" class="w-4 h-4 rounded-full mr-2">
+                                <span>Français</span>
+                            </div>
+                            <div class="text-white/80 text-xs ml-2">IA • Appel Vidéo • 3 Langues</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Language Selector -->
+                <div class="relative">
+                    <button id="languageDropdownBtn" class="bg-white/10 hover:bg-white/20 text-white py-2 px-3 rounded-lg flex items-center transition btn-hover-effect">
+                        <img src="SARAH AI.jpg" alt="Sarah IA" class="w-5 h-5 rounded-full mr-2 object-cover">
+                        <span class="hidden md:inline">Français</span>
+                        <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                    </button>
+                    <div id="languageDropdown" class="navbar-dropdown">
+                        <div class="p-2">
+                            <div class="dropdown-item" data-lang="fr">
+                                <span class="flag-icon flag-fr"></span>
+                                <span>Français</span>
+                            </div>
+                            <div class="dropdown-item" data-lang="en">
+                                <span class="flag-icon flag-en"></span>
+                                <span>English</span>
+                            </div>
+                            <div class="dropdown-item" data-lang="ln">
+                                <img src="SARAH AI.jpg" alt="Lingala (prononcé Ligala)" class="w-5 h-5 rounded-full mr-2 object-cover">
+                                <span>Lingala </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center space-x-3 md:space-x-4">
+                    <button id="navVideoCall" class="bg-white/20 hover:bg-white/30 text-white py-2 px-3 md:px-4 rounded-lg flex items-center transition-all duration-300 hover:scale-105 call-ring btn-hover-effect">
+                        <i class="fas fa-video mr-2"></i>
+                        <span class="hidden md:inline">Appel Vidéo</span>
+                    </button>
+                    <button id="navVoiceToggle" class="bg-orange-500 hover:bg-orange-600 text-white p-2 rounded-full transition btn-hover-effect" title="Activer le mode vocal">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button id="searchModeBtn" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition btn-hover-effect" title="Activer la recherche web">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button id="imageModeBtn" class="bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-full transition btn-hover-effect" title="Activer la génération d'images">
+                        <i class="fas fa-image"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation -->
+            <div class="flex lg:hidden justify-between items-center">
+                <div class="flex items-center">
+                    <button id="mobileMenuToggle" class="text-white mr-3">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="relative">
+                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white">
+                            <img src="SARAH AI.jpg" alt="Sarah IA" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-bolt text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3">
+                        <h1 class="text-lg font-bold text-white">Sarah IA</h1>
+                        <div id="mobileLanguageBadge" class="language-badge text-xs mt-1">
+                            <img src="SARAH AI.jpg" alt="Sarah IA" class="w-3 h-3 rounded-full mr-1 object-cover">
+                            <span>FR</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <button id="mobileVideoCall" class="bg-white/20 text-white p-2 rounded-full">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button id="mobileVoiceToggle" class="bg-orange-500 text-white p-2 rounded-full">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="lg:hidden mobile-nav absolute top-full left-0 right-0 bg-white shadow-xl rounded-b-2xl py-4 px-6 hidden">
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <button id="mobileSearchToggle" class="flex flex-col items-center justify-center p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition">
+                    <i class="fas fa-search text-blue-600 text-xl mb-2"></i>
+                    <span class="text-sm font-medium">Recherche</span>
+                </button>
+                <button id="mobileImageToggle" class="flex flex-col items-center justify-center p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition">
+                    <i class="fas fa-image text-purple-600 text-xl mb-2"></i>
+                    <span class="text-sm font-medium">Images</span>
+                </button>
+                <button id="mobileVoiceToggleBtn" class="flex flex-col items-center justify-center p-4 bg-green-50 rounded-xl hover:bg-green-100 transition">
+                    <i class="fas fa-microphone text-green-600 text-xl mb-2"></i>
+                    <span class="text-sm font-medium">Vocal</span>
+                </button>
+                <button id="mobileQuestionsToggle" class="flex flex-col items-center justify-center p-4 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition">
+                    <i class="fas fa-question text-indigo-600 text-xl mb-2"></i>
+                    <span class="text-sm font-medium">Questions</span>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="font-bold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-globe text-blue-500 mr-2"></i>Langue
+                </h3>
+                <div class="grid grid-cols-3 gap-2">
+                    <button class="mobile-lang-btn flex flex-col items-center p-3 border rounded-lg hover:bg-gray-50 transition" data-lang="fr">
+                        <span class="flag-icon flag-fr mb-2"></span>
+                        <span class="text-sm">Français</span>
+                    </button>
+                    <button class="mobile-lang-btn flex flex-col items-center p-3 border rounded-lg hover:bg-gray-50 transition" data-lang="en">
+                        <span class="flag-icon flag-en mb-2"></span>
+                        <span class="text-sm">English</span>
+                    </button>
+                    <button class="mobile-lang-btn flex flex-col items-center p-3 border rounded-lg hover:bg-gray-50 transition" data-lang="ln">
+                        <img src="SARAH AI.jpg" alt="Lingala" class="w-6 h-6 rounded-full mb-2 object-cover">
+                        <span class="text-sm">Lingala</span>
+                        <div class="pronunciation-note text-xs">(Ligala)</div>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <button id="mobileCallBtn" class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-lg font-medium btn-hover-effect flex items-center justify-center">
+                    <i class="fas fa-video mr-2"></i> Appel Vidéo
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 container mx-auto py-4 md:py-8 px-3 md:px-6">
+        <div class="flex flex-col lg:flex-row gap-4 md:gap-8 mobile-stack">
+            <!-- Sidebar -->
+            <div id="sidebar" class="lg:w-1/4 mobile-full bg-white rounded-2xl shadow-xl p-4 md:p-6 slide-up border border-orange-100">
+                <div class="mb-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-orange-500 overflow-hidden mx-auto float-animation">
+                            <img src="SARAH AI.jpg" alt="Sarah IA" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                    <h2 class="text-xl md:text-2xl font-bold text-center text-gray-800 mb-2">Sarah IA</h2>
+                    <p class="text-center text-gray-600 mb-4 text-sm md:text-base">Français • English • Lingala </p>
+                    <div class="flex justify-center mb-6">
+                        <div class="bg-green-100 text-green-800 text-xs md:text-sm px-3 py-1 rounded-full flex items-center bounce-animation">
+                            <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div> 
+                            <span id="connectionText">En ligne • 3 Langues</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Language Selection -->
+                <div class="mb-6">
+                    <h3 class="font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-globe text-blue-500 mr-2"></i>Langue de Sarah
+                    </h3>
+                    <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Choisissez la langue que vous voulez :</label>
+                        <select id="languageSelector" class="language-selector">
+                            <option value="fr" selected>
+                                <span class="flag-icon flag-fr"></span> Français
+                            </option>
+                            <option value="en">
+                                <span class="flag-icon flag-en"></span> English
+                            </option>
+                            <option value="ln">
+                                <img src="SARAH AI.jpg" alt="Lingala" class="w-5 h-5 rounded-full inline-block mr-2 object-cover">
+                                Lingala 
+                            </option>
+                        </select>
+                        <div class="mt-3 flex space-x-2">
+                            <button id="testLanguageBtn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 rounded-lg text-sm transition">
+                                <i class="fas fa-play mr-1"></i> Tester
+                            </button>
+                            <button id="saveLanguageBtn" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-3 rounded-lg text-sm transition">
+                                <i class="fas fa-save mr-1"></i> Sauvegarder
+                            </button>
+                        </div>
+                        <div class="mt-3 text-xs text-gray-600">
+                            <i class="fas fa-info-circle mr-1"></i> Sarah parle et comprend cette langue
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="mb-6">
+                    <h3 class="font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-bolt text-orange-500 mr-2 icon-spin"></i>Fonctions rapides
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="quickVideoCall" class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3 rounded-lg flex flex-col items-center justify-center transition transform hover:scale-105 btn-hover-effect pulse-animation">
+                            <i class="fas fa-video text-xl mb-2"></i>
+                            <span class="text-sm">Appel Vidéo</span>
+                        </button>
+                        <button id="quickVoice" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 rounded-lg flex flex-col items-center justify-center transition transform hover:scale-105 btn-hover-effect">
+                            <i class="fas fa-microphone text-xl mb-2"></i>
+                            <span class="text-sm">Mode Vocal</span>
+                        </button>
+                        <button id="quickSearch" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 rounded-lg flex flex-col items-center justify-center transition transform hover:scale-105 btn-hover-effect">
+                            <i class="fas fa-search text-xl mb-2"></i>
+                            <span class="text-sm">Recherche</span>
+                        </button>
+                        <button id="quickImage" class="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 rounded-lg flex flex-col items-center justify-center transition transform hover:scale-105 btn-hover-effect">
+                            <i class="fas fa-image text-xl mb-2"></i>
+                            <span class="text-sm">Images</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Voice Settings -->
+                <div class="mb-6">
+                    <h3 class="font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-volume-up text-orange-500 mr-2"></i>Voix de Sarah
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="bg-gradient-to-r from-orange-50 to-amber-50 p-4 rounded-lg border border-orange-200">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Sélectionnez la voix :</label>
+                            <select id="voiceSelector" class="voice-selector">
+                                <option value="default">Voix standard</option>
+                                <option value="female">Voix féminine</option>
+                                <option value="male">Voix masculine</option>
+                                <option value="soft">Voix douce</option>
+                                <option value="clear">Voix claire</option>
+                            </select>
+                            <div class="mt-3 flex space-x-2">
+                                <button id="testVoiceBtn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 rounded-lg text-sm transition">
+                                    <i class="fas fa-play mr-1"></i> Tester
+                                </button>
+                                <button id="saveVoiceBtn" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-3 rounded-lg text-sm transition">
+                                    <i class="fas fa-save mr-1"></i> Sauvegarder
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Réglages vocaux :</label>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="text-xs text-gray-600">Vitesse : <span id="speedValue">1.0</span>x</label>
+                                    <input type="range" id="voiceSpeed" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-600">Hauteur : <span id="pitchValue">1.0</span></label>
+                                    <input type="range" id="voicePitch" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-600">Volume : <span id="volumeValue">1.0</span></label>
+                                    <input type="range" id="voiceVolume" min="0.1" max="1.0" step="0.1" value="1.0" class="w-full">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Conversation History -->
+                <div class="mb-6">
+                    <h3 class="font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-history text-orange-500 mr-2"></i>Conversation récente
+                    </h3>
+                    <div class="conversation-history" id="conversationHistory">
+                        <!-- Messages will be added here -->
+                    </div>
+                </div>
+                
+                <!-- Statistics -->
+                <div class="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-200">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-chart-line text-orange-500 mr-2"></i>Statistiques
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-comment text-orange-500"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-600">Messages</div>
+                                    <div class="font-bold text-gray-800" id="dailyMessages">2</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-gray-600">Temps</div>
+                                <div class="font-bold text-gray-800" id="dailyTime">1 min</div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-language text-blue-500"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-600">Langues</div>
+                                    <div class="font-bold text-gray-800">3</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-gray-600">Appels</div>
+                                <div class="font-bold text-gray-800" id="dailyCalls">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Chat Area -->
+            <div class="lg:w-3/4 mobile-full">
+                <div class="bg-white rounded-2xl shadow-xl h-full flex flex-col border border-orange-100">
+                    <div class="border-b border-gray-200 p-4 md:p-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 flex items-center justify-center text-white mr-3 md:mr-4 overflow-hidden border-2 border-white">
+                                    <img src="SARAH AI.jpg" alt="Sarah IA" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <h2 class="text-lg md:text-xl font-bold text-gray-800">Sarah IA</h2>
+                                    <p class="text-gray-600 text-xs md:text-sm">
+                                        <span id="apiStatus">Français • English • Lingala • Appel Vidéo</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div id="connectionStatus" class="flex items-center bg-green-100 text-green-800 text-xs px-2 md:px-3 py-1 rounded-full">
+                                    <div class="w-2 h-2 rounded-full bg-green-500 mr-1 md:mr-2"></div>
+                                    <span class="text-xs" id="statusText">Tous systèmes OK</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Video Call Container -->
+                    <div id="videoCallContainer" class="hidden border-b border-gray-200 p-4 md:p-6">
+                        <div class="mb-4">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                                <h3 class="text-lg font-bold text-gray-800 mb-2 md:mb-0">Appel vidéo avec Sarah IA</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    <div class="flex items-center bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full">
+                                        <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                                        <span>Appel actif</span>
+                                    </div>
+                                    <div class="text-sm text-gray-600" id="callTimer">00:00</div>
+                                    <div id="recordingStatus" class="flex items-center bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full hidden">
+                                        <div class="w-2 h-2 rounded-full bg-red-500 mr-2 recording-indicator"></div>
+                                        <span>Enregistrement</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-gray-600 text-sm mt-1">Appel vidéo multilingue • Sarah parle français, anglais et lingala (prononcé Ligala)</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-4">
+                            <!-- Local Video -->
+                            <div class="bg-gray-900 rounded-xl overflow-hidden aspect-video relative">
+                                <video id="localVideo" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                                <div class="absolute top-0 left-0 w-full p-3 bg-gradient-to-b from-black/70 to-transparent">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white mr-2">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="text-white font-medium">Vous</div>
+                                    </div>
+                                </div>
+                                <div class="absolute bottom-4 right-4 flex space-x-2">
+                                    <button id="toggleMic" class="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full transition">
+                                        <i class="fas fa-microphone"></i>
+                                    </button>
+                                    <button id="toggleVideo" class="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full transition">
+                                        <i class="fas fa-video"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Remote Video (Sarah) -->
+                            <div class="remote-video-container aspect-video relative">
+                                <div id="remoteVideoContainer" class="w-full h-full">
+                                    <div class="remote-loading">
+                                        <div class="w-24 h-24 md:w-32 md:h-32 rounded-full mx-auto mb-4 overflow-hidden border-4 border-orange-500 pulse-animation">
+                                            <img src="SARAH AI.jpg" alt="Sarah IA" class="w-full h-full object-cover">
+                                        </div>
+                                        <p class="text-white font-medium text-lg md:text-xl">Sarah IA</p>
+                                        <p class="text-orange-300 text-sm md:text-base" id="callLanguageText">Prête à discuter...</p>
+                                        <div class="mt-4">
+                                            <div class="loading-wave">
+                                                <div></div><div></div><div></div><div></div><div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="remote-status">
+                                    <i class="fas fa-robot"></i>
+                                    <span id="remoteStatus">Sarah IA - En ligne</span>
+                                </div>
+                                <div id="speakingIndicator" class="remote-status hidden" style="bottom: 60px;">
+                                    <i class="fas fa-comment-dots"></i>
+                                    <span id="speakingText">Sarah parle...</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Language Controls -->
+                        <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+                            <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                                <i class="fas fa-language text-blue-500 mr-2"></i>Langue de l'appel
+                            </h4>
+                            <div class="flex flex-wrap gap-3">
+                                <button class="call-language-btn flex items-center px-4 py-2 bg-white border border-blue-300 rounded-lg hover:bg-blue-50 transition" data-lang="fr">
+                                    <span class="flag-icon flag-fr mr-2"></span>
+                                    <span>Français</span>
+                                </button>
+                                <button class="call-language-btn flex items-center px-4 py-2 bg-white border border-blue-300 rounded-lg hover:bg-blue-50 transition" data-lang="en">
+                                    <span class="flag-icon flag-en mr-2"></span>
+                                    <span>English</span>
+                                </button>
+                                <button class="call-language-btn flex items-center px-4 py-2 bg-white border border-blue-300 rounded-lg hover:bg-blue-50 transition" data-lang="ln">
+                                    <img src="SARAH AI.jpg" alt="Lingala" class="w-5 h-5 rounded-full mr-2 object-cover">
+                                    <span>Lingala (Ligala)</span>
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-2">
+                                <i class="fas fa-info-circle mr-1"></i> Sarah changera immédiatement de langue
+                            </p>
+                        </div>
+                        
+                        <!-- Call Controls -->
+                        <div class="flex flex-wrap justify-center gap-3 mb-4">
+                            <button id="toggleRecording" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-full flex items-center transition hover:scale-105">
+                                <i class="fas fa-circle text-red-500 mr-2"></i>Enregistrer
+                            </button>
+                            <button id="endCallBtn" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-full flex items-center transition hover:scale-105">
+                                <i class="fas fa-phone-slash mr-2"></i>Terminer
+                            </button>
+                            <button id="fullscreenBtn" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-full flex items-center transition hover:scale-105">
+                                <i class="fas fa-expand mr-2"></i>Plein écran
+                            </button>
+                            <button id="toggleCallVoice" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full flex items-center transition hover:scale-105">
+                                <i class="fas fa-microphone-alt mr-2"></i>Reconnaissance
+                            </button>
+                            <a id="downloadRecording" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-full flex items-center transition hover:scale-105 hidden" download="appel_sarah.mp3">
+                                <i class="fas fa-download mr-2"></i>Télécharger
+                            </a>
+                        </div>
+                        
+                        <!-- Call Chat -->
+                        <div class="mt-6 border-t border-gray-200 pt-4">
+                            <h4 class="font-bold text-gray-800 mb-3">Chat pendant l'appel</h4>
+                            <div class="flex">
+                                <input type="text" id="callChatInput" class="flex-1 border border-gray-300 rounded-l-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition" placeholder="Posez une question à Sarah...">
+                                <button id="callChatSend" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-r-lg transition">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            <div id="callChatMessages" class="mt-4 max-h-40 overflow-y-auto space-y-2"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Container -->
+                    <div id="chatContainer" class="flex-1 p-4 md:p-6 overflow-y-auto max-h-[500px] md:max-h-[600px]">
+                        <div class="mb-6">
+                            <div class="message-bubble-ai p-4 md:p-6 max-w-[90%] md:max-w-[80%] language-change">
+                                <div class="flex items-center mb-3">
+                                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 flex items-center justify-center text-white mr-3 overflow-hidden">
+                                        <img src="SARAH AI.jpg" alt="Sarah IA" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-white">Sarah IA</div>
+                                        <div class="text-xs text-gray-300">Français • English • Lingala</div>
+                                    </div>
+                                </div>
+                                <div class="text-white text-sm md:text-base leading-relaxed">
+                                    <strong>Bonjour ! Je suis Sarah IA, votre assistante conversationnelle.</strong><br><br>
+                                    
+                                    <strong>Présentation en 3 langues :</strong><br>
+                                    
+                                    <div class="lingala-phrase mt-3">
+                                        <strong>Lingala :</strong> "Mboté! Nazali Sarah IA, mosalisi na yo ya maloba mingi."
+                                        <div class="phrase-translation">Traduction : "Bonjour! Je suis Sarah IA, votre assistante multilingue."</div>
+                                       
+                                    </div>
+                                    
+                                    <div class="lingala-phrase">
+                                        <strong>English :</strong> "Hello! I'm Sarah AI, your multilingual assistant."
+                                        <div class="phrase-translation">Traduction : "Bonjour! Je suis Sarah IA, votre assistante multilingue."</div>
+                                    </div>
+                                    
+                                    <div class="lingala-phrase">
+                                        <strong>Français :</strong> "Bonjour ! Je suis Sarah IA, votre assistante multilingue."
+                                        <div class="phrase-translation">Traduction : "Hello! I'm Sarah AI, your multilingual assistant."</div>
+                                    </div>
+                                    
+                                    <strong>Mes capacités :</strong><br>
+                                    <ul class="mt-3 space-y-1">
+                                        <li><i class="fas fa-check-circle text-green-300 mr-2"></i><strong>Conversation en 3 langues</strong> - Français, English, Lingala (prononcé Ligala)</li>
+                                        <li><i class="fas fa-check-circle text-green-300 mr-2"></i><strong>Appel Vidéo interactif</strong> - Discussions en visioconférence</li>
+                                        <li><i class="fas fa-check-circle text-green-300 mr-2"></i><strong>Génération d'Images créatives</strong> - Création de visuels uniques</li>
+                                        <li><i class="fas fa-check-circle text-green-300 mr-2"></i><strong>Recherche Web en temps réel</strong> - Informations actualisées</li>
+                                        <li><i class="fas fa-check-circle text-green-300 mr-2"></i><strong>Reconnaissance Vocale avancée</strong> - Interaction naturelle</li>
+                                        <li><i class="fas fa-check-circle text-green-300 mr-2"></i><strong>Questions interactives</strong> - Je peux vous poser des questions dans les 3 langues</li>
+                                    </ul>
+                                    
+                                    <p class="mt-4"><strong>Expressions Lingala courantes :</strong></p>
+                                    <ul class="mt-2 space-y-1">
+                                        <li><i class="fas fa-comment text-orange-300 mr-2"></i><strong>"Mboté"</strong> - Bonjour</li>
+                                        <li><i class="fas fa-comment text-orange-300 mr-2"></i><strong>"Sango nini?"</strong> - Comment ça va ?</li>
+                                        <li><i class="fas fa-comment text-orange-300 mr-2"></i><strong>"Matondo mingi"</strong> - Merci beaucoup</li>
+                                        <li><i class="fas fa-comment text-orange-300 mr-2"></i><strong>"Nalingi yo"</strong> - Je t'aime</li>
+                                        <li><i class="fas fa-comment text-orange-300 mr-2"></i><strong>"Tokomonana"</strong> - À plus tard</li>
+                                    </ul>
+                                    
+                                    <p class="mt-4">Je suis entièrement à votre service ! N'hésitez pas à me demander ce dont vous avez besoin. <span class="emotion-indicator">😊</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Questions from Sarah -->
+                        <div id="sarahQuestionContainer" class="hidden mb-6">
+                            <div class="sarah-question">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-purple-400 to-purple-600 flex items-center justify-center text-white mr-2">
+                                        <i class="fas fa-question text-xs"></i>
+                                    </div>
+                                    <div class="font-bold text-white">Sarah vous pose une question :</div>
+                                </div>
+                                <div class="text-white text-sm md:text-base" id="sarahQuestionText"></div>
+                                <div class="mt-2 text-xs text-purple-200">
+                                    <i class="fas fa-lightbulb mr-1"></i> Répondez-moi pour continuer la conversation !
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Input Area -->
+                    <div class="border-t border-gray-200 p-4 md:p-6">
+                        <div id="typingIndicator" class="hidden mb-4">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 flex items-center justify-center text-white mr-3 overflow-hidden">
+                                    <img src="SARAH AI.jpg" alt="Sarah IA" class="w-full h-full object-cover">
+                                </div>
+                                <div class="text-gray-600 text-sm">
+                                    <span class="font-medium">Sarah</span> <span id="typingAction">réfléchit</span>...
+                                    <div class="loading-wave mt-1">
+                                        <div></div><div></div><div></div><div></div><div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Language Indicator -->
+                        <div id="modeIndicatorBar" class="mb-3 p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div id="modeIcon" class="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-white mr-2">
+                                        <i class="fas fa-brain text-xs"></i>
+                                    </div>
+                                    <div class="text-sm">
+                                        <span class="font-medium">Langue :</span>
+                                        <span id="currentModeIndicator" class="text-orange-600 ml-1">Français</span>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    Changez de langue dans la sidebar
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Input Field -->
+                        <div class="flex mb-3">
+                            <div class="flex-1 flex items-center border border-gray-300 rounded-l-lg px-4 py-3 focus-within:ring-2 focus-within:ring-orange-500 focus-within:border-orange-500 transition">
+                                <input type="text" id="userInput" class="flex-1 focus:outline-none text-sm md:text-base" placeholder="Parlez à Sarah dans votre langue préférée..." autocomplete="off">
+                                <div class="flex space-x-1 ml-2">
+                                    <button id="toggleMode" class="text-gray-500 hover:text-orange-500 btn-hover-effect p-1" title="Changer de mode">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </button>
+                                    <button id="attachFileBtn" class="text-gray-500 hover:text-orange-500 btn-hover-effect p-1" title="Importer un fichier">
+                                        <i class="fas fa-paperclip"></i>
+                                    </button>
+                                    <button id="askQuestionBtn" class="text-gray-500 hover:text-indigo-500 btn-hover-effect p-1" title="Demander à Sarah de poser une question">
+                                        <i class="fas fa-question-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex">
+                                <button id="voiceInputBtn" class="bg-blue-100 hover:bg-blue-200 text-blue-600 px-4 py-3 border border-blue-300 transition flex items-center btn-hover-effect">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <button id="sendButton" class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-3 rounded-r-lg transition flex items-center hover:scale-105 active:scale-95 btn-hover-effect">
+                                    <i class="fas fa-paper-plane mr-2"></i>
+                                    <span class="hidden md:inline">Envoyer</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Suggestions -->
+                        <div class="flex flex-wrap gap-2">
+                            <button class="suggestion-btn bg-gradient-to-r from-orange-50 to-amber-50 hover:from-orange-100 hover:to-amber-100 text-orange-800 text-xs md:text-sm py-2 px-3 rounded-lg transition transform hover:scale-105 btn-hover-effect">
+                                Présente-toi
+                            </button>
+                            <button class="suggestion-btn bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 text-blue-800 text-xs md:text-sm py-2 px-3 rounded-lg transition transform hover:scale-105 btn-hover-effect">
+                                Actualités du jour
+                            </button>
+                            <button class="suggestion-btn bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 text-purple-800 text-xs md:text-sm py-2 px-3 rounded-lg transition transform hover:scale-105 btn-hover-effect">
+                                Dessine un paysage futuriste
+                            </button>
+                            <button class="suggestion-btn bg-gradient-to-r from-orange-50 to-amber-50 hover:from-orange-100 hover:to-amber-100 text-orange-800 text-xs md:text-sm py-2 px-3 rounded-lg transition transform hover:scale-105 btn-hover-effect">
+                                Démarrer un appel vidéo
+                            </button>
+                            <button class="suggestion-btn bg-gradient-to-r from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 text-red-800 text-xs md:text-sm py-2 px-3 rounded-lg transition transform hover:scale-105 btn-hover-effect" id="testLanguage">
+                                Teste une langue
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Recording Modal -->
+    <div id="recordingModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 slide-up">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-xl font-bold text-gray-800">Enregistrement audio</h3>
+                <p class="text-gray-600 text-sm mt-1">Votre appel avec Sarah est en cours d'enregistrement</p>
+            </div>
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-microphone text-red-500 text-3xl"></i>
+                    </div>
+                    <div class="text-2xl font-bold text-red-600 mb-2" id="recordingTimer">00:00</div>
+                    <p class="text-gray-600">L'audio de l'appel est en cours d'enregistrement</p>
+                </div>
+                <div class="flex justify-center space-x-4">
+                    <button id="stopRecordingBtn" class="bg-red-500 hover:bg-red-600 text-white py-3 px-6 rounded-full flex items-center transition">
+                        <i class="fas fa-stop mr-2"></i>Arrêter
+                    </button>
+                    <button id="cancelRecordingBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 py-3 px-6 rounded-full flex items-center transition">
+                        <i class="fas fa-times mr-2"></i>Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const DEEPSEEK_API_KEY = 'sk-ab27b808e1c7431fb40ad542cdb219e6';
+        const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+        const POLLINATIONS_AI_URL = 'https://image.pollinations.ai/prompt';
+        
+        const CONFIG = {
+            voiceSpeed: 1.0,
+            voicePitch: 1.0,
+            voiceVolume: 1.0,
+            currentLanguage: 'fr',
+            model: 'deepseek-chat',
+            currentMode: 'ai',
+            searchProvider: 'duckduckgo',
+            currentVoice: 'default',
+            questionsEnabled: true,
+            questionInterval: 120000, // 2 minutes
+            lastQuestionTime: null
+        };
+        
+        // Languages Configuration
+        const LANGUAGES = {
+            'fr': {
+                name: 'Français',
+                code: 'fr-FR',
+                greeting: "Bonjour ! Je suis Sarah IA, votre assistante conversationnelle. Je parle français, anglais et lingala (prononcé ligala). Comment puis-je vous aider aujourd'hui ?",
+                flagClass: 'flag-fr',
+                placeholder: "Parlez à Sarah en français...",
+                speaking: "Sarah parle...",
+                status: "Tous systèmes OK",
+                connection: "En ligne • 3 Langues",
+                testPhrase: "Bonjour, je suis Sarah IA. Je parle couramment le français, l'anglais et le lingala .",
+                callReady: "Prête à discuter en français..."
+            },
+            'en': {
+                name: 'English',
+                code: 'en-US',
+                greeting: "Hello! I'm Sarah AI, your conversational assistant. I speak French, English and Lingala (pronounced ligala). How can I help you today?",
+                flagClass: 'flag-en',
+                placeholder: "Talk to Sarah in English...",
+                speaking: "Sarah is speaking...",
+                status: "All systems OK",
+                connection: "Online • 3 Languages",
+                testPhrase: "Hello, I'm Sarah AI. I speak French, English and Lingala (pronounced ligala) fluently.",
+                callReady: "Ready to chat in English..."
+            },
+            'ln': {
+                name: 'Lingala ',
+                code: 'fr-FR',
+                greeting: "Mboté! Nazali Sarah IA, mosalisi na yo ya solola. Nalobaka français, anglais mpe ligala . Nalingi kosalisa yo ndenge nini lelo?",
+                flagClass: '',
+                placeholder: "Loba na Sarah na lingala...",
+                speaking: "Sarah azali koloba...",
+                status: "Biloko nyoso ezali malamu",
+                connection: "Na ligne • Maloba 3",
+                testPhrase: "Mbote, nazali Sarah IA. Nalobaka français, anglais mpe lingala (ebengami ligala) malamu.",
+                callReady: "Nazali prepared kosolola na lingala..."
+            }
+        };
+        
+        // State Variables
+        let isVoiceEnabled = false;
+        let recognition = null;
+        let isVideoCallActive = false;
+        let isFullscreen = false;
+        let localStream = null;
+        let callStartTime = null;
+        let callInterval = null;
+        let isCallVoiceRecognitionActive = false;
+        let callRecognition = null;
+        let speechSynthesis = window.speechSynthesis;
+        let dailyStatsData = { messages: 2, time: 1, searches: 0, images: 0, calls: 0, questions: 0 };
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let recordingStartTime = null;
+        let recordingInterval = null;
+        let currentConversation = [];
+        let availableVoices = [];
+        let callLanguage = 'fr';
+        let isSarahSpeaking = false;
+        let questionTimer = null;
+        
+        // Lingala Phrases Database
+        const LINGALA_PHRASES = {
+            greetings: [
+                { lingala: "Mboté", french: "Bonjour", english: "Hello", pronunciation: "Mboté" },
+                { lingala: "Mboté na tongo", french: "Bonjour (le matin)", english: "Good morning", pronunciation: "Mbote na tongo" },
+                { lingala: "Mboté na mpokwa", french: "Bonsoir", english: "Good evening", pronunciation: "Mbote na mpokwa" }
+            ],
+            common: [
+                { lingala: "Sango nini?", french: "Comment ça va ?", english: "How are you?", pronunciation: "Sango nini?" },
+                { lingala: "Sango malamu", french: "Ça va bien", english: "I'm fine", pronunciation: "Sango malamu" },
+                { lingala: "Matondo mingi", french: "Merci beaucoup", english: "Thank you very much", pronunciation: "Matondo mingi" },
+                { lingala: "Limbisa ngai", french: "S'il vous plaît / Pardon", english: "Please / Excuse me", pronunciation: "Limbisa ngai" },
+                { lingala: "Nalingi yo", french: "Je t'aime", english: "I love you", pronunciation: "Nalingi yo" },
+                { lingala: "Tokomonana", french: "Au revoir", english: "Goodbye", pronunciation: "Tokomonana" }
+            ],
+            questions: [
+                { lingala: "Kombo na yo nani?", french: "Comment tu t'appelles ?", english: "What's your name?", pronunciation: "Kombo na yo nani?" },
+                { lingala: "Owuti wapi?", french: "Tu viens d'où ?", english: "Where are you from?", pronunciation: "Owuti wapi?" },
+                { lingala: "Olobaka lifalanse?", french: "Tu parles français ?", english: "Do you speak French?", pronunciation: "Olobaka lifalanse?" }
+            ],
+            expressions: [
+                { lingala: "Kitoko!", french: "C'est beau / magnifique!", english: "It's beautiful!", pronunciation: "Kitoko!" },
+                { lingala: "Elengi!", french: "C'est délicieux / agréable", english: "It's delicious/nice", pronunciation: "Elengi!" },
+                { lingala: "Pesa ngai mayi", french: "Donne-moi de l'eau", english: "Give me water", pronunciation: "Pesa ngai mayi" },
+                { lingala: "Tika makelele!", french: "Arrête de faire du bruit!", english: "Stop making noise!", pronunciation: "Tika makelele!" }
+            ]
+        };
+        
+        // Questions Sarah can ask in different languages
+        const SARAH_QUESTIONS = {
+            'fr': [
+                 "Que pensez vous de Gis Community System   ?",
+                  "Quel est votre point de vue me concernant  ?",
+                "Quel est votre projet le plus passionnant en ce moment ?",
+                "Si vous pouviez voyager dans le temps, quelle période visiteriez-vous ?",
+                "Quelle est la dernière chose qui vous a vraiment fait rire ?",
+                "Quel serait votre super-pouvoir idéal et pourquoi ?",
+                "Quelle est votre plus grande source d'inspiration au quotidien ?",
+                "Si vous pouviez maîtriser instantanément une nouvelle compétence, laquelle choisiriez-vous ?",
+                "Qu'est-ce qui vous rend le plus fier dans votre vie actuelle ?",
+                "Quel conseil donneriez-vous à votre version plus jeune ?",
+                "Comment imaginez-vous le monde dans 50 ans ?",
+                "Quelle est la chose la plus importante que vous avez apprise cette année ?"
+            ],
+            'en': [
+                "What is your most exciting project right now?",
+                "If you could travel through time, which period would you visit?",
+                "What was the last thing that really made you laugh?",
+                "What would be your ideal superpower and why?",
+                "What is your biggest source of daily inspiration?",
+                "If you could instantly master a new skill, which one would you choose?",
+                "What makes you most proud in your current life?",
+                "What advice would you give to your younger self?",
+                "How do you imagine the world in 50 years?",
+                "What is the most important thing you've learned this year?"
+            ],
+            'ln': [
+                "Projet na yo ya esengo mingi ezali nini sikoyo?",
+                "Soki okoki kotambola na ngonga, eleko nini okoyebaka?",
+                "Eloko ya suka eyeli yo esengo mingi ezalaki nini?",
+                "Pouvoir nini ya kitoko okolingaka mpe mpo na nini?",
+                "Ndenge nini ezali kopona yo esengo mokolo na mokolo?",
+                "Soki okoki koyeba competence ya sika mbala moko, oyakaka nini?",
+                "Nini ezali kosala yo lokumu mingi na bomoi na yo ya sikoyo?",
+                "Malako nini opesaka version na yo ya moke?",
+                "Okokanisaka mokili ndenge nini na mbula 50?",
+                "Eloko nini ya ntina mingi oyekaki na mbula oyo?"
+            ]
+        };
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initVoiceRecognition();
+            initDailyStats();
+            loadVoiceSettings();
+            loadLanguageSettings();
+            loadConversationHistory();
+            setupEventListeners();
+            updateLanguageDisplay();
+            initVoices();
+            
+            // Welcome message
+            setTimeout(() => {
+                const welcomeMsg = LANGUAGES[CONFIG.currentLanguage].greeting;
+                addMessage(welcomeMsg, 'ai');
+                speakWithVoice(welcomeMsg, CONFIG.currentLanguage);
+            }, 1000);
+            
+            // Start question timer
+            startQuestionTimer();
+        });
+
+        // Initialize Voices
+        function initVoices() {
+            if ('speechSynthesis' in window) {
+                speechSynthesis.onvoiceschanged = function() {
+                    availableVoices = speechSynthesis.getVoices();
+                };
+                
+                setTimeout(() => {
+                    availableVoices = speechSynthesis.getVoices();
+                }, 1000);
+            }
+        }
+
+        // Initialize Voice Recognition
+        function initVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = true;
+                recognition.lang = LANGUAGES[CONFIG.currentLanguage].code;
+                
+                recognition.onstart = () => {
+                    voiceInputBtn.classList.add('voice-active');
+                    voiceInputBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+                };
+                
+                recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript;
+                        }
+                    }
+                    if (finalTranscript) {
+                        userInput.value = finalTranscript;
+                        sendMessage();
+                    }
+                };
+                
+                recognition.onerror = () => {
+                    voiceInputBtn.classList.remove('voice-active');
+                    voiceInputBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                };
+                
+                recognition.onend = () => {
+                    voiceInputBtn.classList.remove('voice-active');
+                    voiceInputBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                };
+            } else {
+                voiceInputBtn.style.display = 'none';
+            }
+        }
+
+        // Initialize Call Voice Recognition
+        function initCallVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                callRecognition = new SpeechRecognition();
+                callRecognition.continuous = true;
+                callRecognition.interimResults = true;
+                callRecognition.lang = LANGUAGES[callLanguage].code;
+                
+                callRecognition.onstart = () => {
+                    toggleCallVoice.innerHTML = '<i class="fas fa-microphone-slash mr-2"></i>Arrêter reconnaissance';
+                    toggleCallVoice.classList.remove('bg-blue-500');
+                    toggleCallVoice.classList.add('bg-green-500');
+                };
+                
+                callRecognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript;
+                        }
+                    }
+                    if (finalTranscript) {
+                        processCallQuestion(finalTranscript);
+                    }
+                };
+            }
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Message buttons
+            sendButton.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // Quick buttons
+            quickSearch.addEventListener('click', () => setMode('search'));
+            quickImage.addEventListener('click', () => setMode('image'));
+            quickVoice.addEventListener('click', toggleVoice);
+            quickVideoCall.addEventListener('click', startVideoCall);
+            
+            // Voice buttons
+            voiceInputBtn.addEventListener('click', () => {
+                if (recognition) {
+                    recognition.start();
+                }
+            });
+            navVoiceToggle.addEventListener('click', toggleVoice);
+            mobileVoiceToggle.addEventListener('click', toggleVoice);
+            mobileVoiceToggleBtn.addEventListener('click', toggleVoice);
+            
+            // Video call buttons
+            navVideoCall.addEventListener('click', startVideoCall);
+            mobileVideoCall.addEventListener('click', startVideoCall);
+            mobileCallBtn.addEventListener('click', startVideoCall);
+            endCallBtn.addEventListener('click', endVideoCall);
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+            
+            // Call controls
+            toggleMic.addEventListener('click', toggleMicrophone);
+            toggleVideo.addEventListener('click', toggleCamera);
+            toggleCallVoice.addEventListener('click', toggleCallVoiceRecognition);
+            toggleRecording.addEventListener('click', toggleAudioRecording);
+            stopRecordingBtn.addEventListener('click', stopRecording);
+            cancelRecordingBtn.addEventListener('click', cancelRecording);
+            
+            // Call chat
+            callChatSend.addEventListener('click', sendCallMessage);
+            callChatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendCallMessage();
+                }
+            });
+            
+            // Mobile menu
+            mobileMenuToggle.addEventListener('click', () => {
+                const mobileMenu = document.getElementById('mobileMenu');
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // Suggestions
+            document.querySelectorAll('.suggestion-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    userInput.value = this.textContent;
+                    sendMessage();
+                });
+            });
+            
+            // Test language
+            testLanguage.addEventListener('click', testLanguageFunction);
+            
+            // Ask question button
+            askQuestionBtn.addEventListener('click', askRandomQuestion);
+            
+            // Fullscreen handling
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+            document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+            document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+            
+            // Search and image buttons
+            searchModeBtn.addEventListener('click', () => setMode('search'));
+            imageModeBtn.addEventListener('click', () => setMode('image'));
+            mobileSearchToggle.addEventListener('click', () => setMode('search'));
+            mobileImageToggle.addEventListener('click', () => setMode('image'));
+            
+            // Voice settings
+            voiceSelector.addEventListener('change', updateVoiceSettings);
+            testVoiceBtn.addEventListener('click', testVoice);
+            saveVoiceBtn.addEventListener('click', saveVoiceSettings);
+            
+            // Voice sliders
+            voiceSpeed.addEventListener('input', updateVoiceSliders);
+            voicePitch.addEventListener('input', updateVoiceSliders);
+            voiceVolume.addEventListener('input', updateVoiceSliders);
+            
+            // Language settings
+            languageSelector.addEventListener('change', updateLanguage);
+            testLanguageBtn.addEventListener('click', testLanguageFunction);
+            saveLanguageBtn.addEventListener('click', saveLanguageSettings);
+            
+            // Language dropdown
+            languageDropdownBtn.addEventListener('click', toggleLanguageDropdown);
+            
+            // Language selection in dropdown
+            document.querySelectorAll('#languageDropdown .dropdown-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    changeLanguage(lang);
+                    languageDropdown.classList.remove('show');
+                });
+            });
+            
+            // Language selection in mobile menu
+            document.querySelectorAll('.mobile-lang-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    changeLanguage(lang);
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+            
+            // Language selection during call
+            document.querySelectorAll('.call-language-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    changeCallLanguage(lang);
+                });
+            });
+            
+            // Close dropdown when clicking elsewhere
+            document.addEventListener('click', (e) => {
+                if (!languageDropdownBtn.contains(e.target) && !languageDropdown.contains(e.target)) {
+                    languageDropdown.classList.remove('show');
+                }
+            });
+            
+            // Toggle mode
+            toggleMode.addEventListener('click', cycleMode);
+        }
+
+        // Toggle Language Dropdown
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('languageDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Update Voice Sliders
+        function updateVoiceSliders() {
+            CONFIG.voiceSpeed = parseFloat(voiceSpeed.value);
+            CONFIG.voicePitch = parseFloat(voicePitch.value);
+            CONFIG.voiceVolume = parseFloat(voiceVolume.value);
+            
+            document.getElementById('speedValue').textContent = CONFIG.voiceSpeed.toFixed(1);
+            document.getElementById('pitchValue').textContent = CONFIG.voicePitch.toFixed(1);
+            document.getElementById('volumeValue').textContent = CONFIG.voiceVolume.toFixed(1);
+        }
+
+        // Update Voice Settings
+        function updateVoiceSettings() {
+            CONFIG.currentVoice = voiceSelector.value;
+        }
+
+        // Save Voice Settings
+        function saveVoiceSettings() {
+            localStorage.setItem('sarah_voice_settings', JSON.stringify({
+                voice: CONFIG.currentVoice,
+                speed: CONFIG.voiceSpeed,
+                pitch: CONFIG.voicePitch,
+                volume: CONFIG.voiceVolume
+            }));
+            
+            addMessage("✅ Paramètres vocaux sauvegardés avec succès !", 'ai');
+        }
+
+        // Load Voice Settings
+        function loadVoiceSettings() {
+            const savedSettings = localStorage.getItem('sarah_voice_settings');
+            if (savedSettings) {
+                try {
+                    const settings = JSON.parse(savedSettings);
+                    CONFIG.currentVoice = settings.voice || 'default';
+                    CONFIG.voiceSpeed = settings.speed || 1.0;
+                    CONFIG.voicePitch = settings.pitch || 1.0;
+                    CONFIG.voiceVolume = settings.volume || 1.0;
+                    
+                    voiceSelector.value = CONFIG.currentVoice;
+                    voiceSpeed.value = CONFIG.voiceSpeed;
+                    voicePitch.value = CONFIG.voicePitch;
+                    voiceVolume.value = CONFIG.voiceVolume;
+                    
+                    document.getElementById('speedValue').textContent = CONFIG.voiceSpeed.toFixed(1);
+                    document.getElementById('pitchValue').textContent = CONFIG.voicePitch.toFixed(1);
+                    document.getElementById('volumeValue').textContent = CONFIG.voiceVolume.toFixed(1);
+                } catch (e) {
+                    console.error('Error loading voice settings:', e);
+                }
+            }
+        }
+
+        // Test Voice
+        function testVoice() {
+            const testText = LANGUAGES[CONFIG.currentLanguage].testPhrase;
+            speakWithVoice(testText, CONFIG.currentLanguage);
+        }
+
+        // Speak with Voice
+        function speakWithVoice(text, language) {
+            if (!isVoiceEnabled && !isVideoCallActive) return;
+            
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+                
+                const cleanText = text.replace(/\*\*(.*?)\*\*/g, '$1')
+                                     .replace(/<br>/g, '. ')
+                                     .replace(/<[^>]*>/g, '')
+                                     .replace(/\n/g, '. ')
+                                     .replace(/\.\./g, '.')
+                                     .trim();
+                
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.lang = LANGUAGES[language].code;
+                
+                utterance.rate = CONFIG.voiceSpeed;
+                utterance.pitch = CONFIG.voicePitch;
+                utterance.volume = CONFIG.voiceVolume;
+                
+                if (availableVoices.length > 0) {
+                    let selectedVoice = null;
+                    
+                    selectedVoice = availableVoices.find(v => 
+                        v.lang.startsWith(language === 'ln' ? 'fr' : language));
+                    
+                    if (!selectedVoice) {
+                        selectedVoice = availableVoices.find(v => v.default) || availableVoices[0];
+                    }
+                    
+                    if (selectedVoice) {
+                        utterance.voice = selectedVoice;
+                    }
+                }
+                
+                if (isVideoCallActive) {
+                    isSarahSpeaking = true;
+                    const speakingIndicator = document.getElementById('speakingIndicator');
+                    if (speakingIndicator) {
+                        speakingIndicator.classList.remove('hidden');
+                        document.getElementById('speakingText').textContent = LANGUAGES[callLanguage].speaking;
+                    }
+                }
+                
+                utterance.onend = () => {
+                    isSarahSpeaking = false;
+                    if (isVideoCallActive) {
+                        const speakingIndicator = document.getElementById('speakingIndicator');
+                        if (speakingIndicator) speakingIndicator.classList.add('hidden');
+                    }
+                };
+                
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Change Language
+        function changeLanguage(lang) {
+            if (LANGUAGES[lang]) {
+                CONFIG.currentLanguage = lang;
+                
+                updateLanguageDisplay();
+                
+                if (recognition) {
+                    recognition.lang = LANGUAGES[lang].code;
+                }
+                
+                const message = `🌍 **Langue changée en ${LANGUAGES[lang].name}** ! Je vais maintenant parler et comprendre le ${LANGUAGES[lang].name}.`;
+                addMessage(message, 'ai');
+                
+                if (isVoiceEnabled) {
+                    speakWithVoice(`Langue changée en ${LANGUAGES[lang].name}.`, lang);
+                }
+                
+                saveLanguageSettings();
+            }
+        }
+
+        // Change Call Language
+        function changeCallLanguage(lang) {
+            if (LANGUAGES[lang]) {
+                callLanguage = lang;
+                
+                document.getElementById('callLanguageText').textContent = LANGUAGES[lang].callReady;
+                
+                if (callRecognition && isCallVoiceRecognitionActive) {
+                    callRecognition.lang = LANGUAGES[lang].code;
+                }
+                
+                addCallMessage(`Sarah: Langue changée en ${LANGUAGES[lang].name}.`, 'ai');
+                speakWithVoice(`Je parle maintenant en ${LANGUAGES[lang].name}.`, lang);
+                
+                document.querySelectorAll('.call-language-btn').forEach(btn => {
+                    btn.classList.remove('bg-blue-100', 'border-blue-500');
+                });
+                event.target.classList.add('bg-blue-100', 'border-blue-500');
+            }
+        }
+
+        // Update Language Display
+        function updateLanguageDisplay() {
+            const lang = LANGUAGES[CONFIG.currentLanguage];
+            
+            languageSelector.value = CONFIG.currentLanguage;
+            
+            // Update badge with Sarah's image for Lingala
+            let badgeContent = '';
+            if (CONFIG.currentLanguage === 'ln') {
+                badgeContent = `<img src="SARAH AI.jpg" alt="Sarah IA" class="w-4 h-4 rounded-full mr-2 object-cover"><span>${lang.name}</span>`;
+            } else {
+                badgeContent = `<span class="flag-icon ${lang.flagClass} mr-2"></span><span>${lang.name}</span>`;
+            }
+            document.getElementById('currentLanguageBadge').innerHTML = badgeContent;
+            
+            // Update mobile badge
+            let mobileBadgeContent = '';
+            if (CONFIG.currentLanguage === 'ln') {
+                mobileBadgeContent = `<img src="SARAH AI.jpg" alt="Sarah IA" class="w-3 h-3 rounded-full mr-1 object-cover"><span>${lang.name.substring(0, 2).toUpperCase()}</span>`;
+            } else {
+                mobileBadgeContent = `<span class="flag-icon ${lang.flagClass} mr-1"></span><span>${lang.name.substring(0, 2).toUpperCase()}</span>`;
+            }
+            document.getElementById('mobileLanguageBadge').innerHTML = mobileBadgeContent;
+            
+            // Update dropdown button
+            let dropdownContent = '';
+            if (CONFIG.currentLanguage === 'ln') {
+                dropdownContent = `<img src="SARAH AI.jpg" alt="Sarah IA" class="w-5 h-5 rounded-full mr-2 object-cover"><span class="hidden md:inline">${lang.name}</span><i class="fas fa-chevron-down ml-2 text-xs"></i>`;
+            } else {
+                dropdownContent = `<span class="flag-icon ${lang.flagClass} mr-2"></span><span class="hidden md:inline">${lang.name}</span><i class="fas fa-chevron-down ml-2 text-xs"></i>`;
+            }
+            document.getElementById('languageDropdownBtn').innerHTML = dropdownContent;
+            
+            document.getElementById('currentModeIndicator').textContent = lang.name;
+            document.getElementById('statusText').textContent = lang.status;
+            document.getElementById('connectionText').textContent = lang.connection;
+            document.getElementById('userInput').placeholder = lang.placeholder;
+            
+            document.querySelectorAll('.mobile-lang-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-50', 'border-blue-300');
+                if (btn.getAttribute('data-lang') === CONFIG.currentLanguage) {
+                    btn.classList.add('bg-blue-50', 'border-blue-300');
+                }
+            });
+            
+            document.querySelectorAll('.message-bubble-ai, .language-badge').forEach(el => {
+                el.classList.add('language-change');
+                setTimeout(() => {
+                    el.classList.remove('language-change');
+                }, 500);
+            });
+        }
+
+        // Update Language
+        function updateLanguage() {
+            changeLanguage(languageSelector.value);
+        }
+
+        // Test Language Function
+        function testLanguageFunction() {
+            const testText = LANGUAGES[CONFIG.currentLanguage].testPhrase;
+            addMessage(testText, 'ai');
+            speakWithVoice(testText, CONFIG.currentLanguage);
+        }
+
+        // Save Language Settings
+        function saveLanguageSettings() {
+            localStorage.setItem('sarah_language', CONFIG.currentLanguage);
+        }
+
+        // Load Language Settings
+        function loadLanguageSettings() {
+            const savedLanguage = localStorage.getItem('sarah_language');
+            if (savedLanguage && LANGUAGES[savedLanguage]) {
+                CONFIG.currentLanguage = savedLanguage;
+            }
+        }
+
+        // Start Question Timer
+        function startQuestionTimer() {
+            if (questionTimer) {
+                clearInterval(questionTimer);
+            }
+            
+            questionTimer = setInterval(() => {
+                if (CONFIG.questionsEnabled && !isVideoCallActive) {
+                    askRandomQuestion();
+                }
+            }, CONFIG.questionInterval);
+            
+            CONFIG.lastQuestionTime = new Date();
+        }
+
+        // Ask Random Question
+        function askRandomQuestion() {
+            const questions = SARAH_QUESTIONS[CONFIG.currentLanguage];
+            if (questions && questions.length > 0) {
+                const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+                
+                const questionContainer = document.getElementById('sarahQuestionContainer');
+                const questionText = document.getElementById('sarahQuestionText');
+                
+                questionText.textContent = randomQuestion;
+                questionContainer.classList.remove('hidden');
+                
+                // Speak the question
+                if (isVoiceEnabled) {
+                    const questionSpeech = `Question : ${randomQuestion}`;
+                    speakWithVoice(questionSpeech, CONFIG.currentLanguage);
+                }
+                
+                dailyStatsData.questions = (dailyStatsData.questions || 0) + 1;
+                saveStats();
+                
+                CONFIG.lastQuestionTime = new Date();
+            }
+        }
+
+        // Set Mode
+        function setMode(mode) {
+            CONFIG.currentMode = mode;
+            
+            let modeMessage = '';
+            let icon = '';
+            let color = '';
+            
+            switch(mode) {
+                case 'ai':
+                    modeMessage = `Mode **Conversation IA** activé. Je vais répondre à vos questions avec intelligence et précision.`;
+                    icon = 'brain';
+                    color = 'orange';
+                    break;
+                case 'search':
+                    modeMessage = `Mode **Recherche Web** activé. Je vais rechercher des informations en temps réel sur internet pour vous.`;
+                    icon = 'search';
+                    color = 'blue';
+                    break;
+                case 'image':
+                    modeMessage = `Mode **Génération d'Images** activé. Je vais créer des images visuellement étonnantes selon vos descriptions.`;
+                    icon = 'image';
+                    color = 'purple';
+                    break;
+                case 'voice':
+                    modeMessage = `Mode **Vocal** activé. Je vais parler mes réponses et écouter vos questions pour une interaction naturelle.`;
+                    icon = 'microphone';
+                    color = 'green';
+                    break;
+            }
+            
+            document.getElementById('currentModeIndicator').textContent = LANGUAGES[CONFIG.currentLanguage].name;
+            
+            const modeIcon = document.getElementById('modeIcon');
+            modeIcon.className = `w-6 h-6 rounded-full bg-${color}-500 flex items-center justify-center text-white mr-2`;
+            modeIcon.innerHTML = `<i class="fas fa-${icon} text-xs"></i>`;
+            
+            addMessage(modeMessage, 'ai');
+            
+            const placeholders = {
+                'ai': LANGUAGES[CONFIG.currentLanguage].placeholder,
+                'search': "Recherchez sur le web (actualités, informations, etc.)...",
+                'image': "Décrivez l'image que vous souhaitez que je génère...",
+                'voice': "Parlez ou tapez votre message, je vous écoute..."
+            };
+            userInput.placeholder = placeholders[mode] || LANGUAGES[CONFIG.currentLanguage].placeholder;
+        }
+
+        // Cycle Mode
+        function cycleMode() {
+            const modes = ['ai', 'search', 'image', 'voice'];
+            const currentIndex = modes.indexOf(CONFIG.currentMode);
+            const nextIndex = (currentIndex + 1) % modes.length;
+            setMode(modes[nextIndex]);
+        }
+
+        // Start Video Call
+        async function startVideoCall() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'user'
+                    },
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+                
+                document.getElementById('localVideo').srcObject = localStream;
+                document.getElementById('videoCallContainer').classList.remove('hidden');
+                document.getElementById('chatContainer').style.display = 'none';
+                isVideoCallActive = true;
+                
+                document.getElementById('navVideoCall').classList.add('bg-red-500');
+                document.getElementById('navVideoCall').classList.remove('bg-white/20');
+                document.getElementById('navVideoCall').innerHTML = '<i class="fas fa-video-slash mr-2"></i>Appel en cours';
+                
+                callStartTime = new Date();
+                startCallTimer();
+                initCallVoiceRecognition();
+                
+                setTimeout(() => {
+                    const presentation = LANGUAGES[callLanguage].greeting;
+                    
+                    addCallMessage(`Sarah: ${presentation}`, 'ai');
+                    speakWithVoice(presentation, callLanguage);
+                    
+                    // Ask a question after 5 seconds
+                    setTimeout(() => {
+                        askRandomQuestionInCall();
+                    }, 5000);
+                }, 1000);
+                
+                dailyStatsData.calls = (dailyStatsData.calls || 0) + 1;
+                updateDailyStatsDisplay();
+                saveStats();
+                
+            } catch (error) {
+                console.error('Error starting video call:', error);
+                addMessage("Impossible de démarrer l'appel vidéo. Veuillez vérifier vos permissions caméra/microphone.", 'ai');
+                isVideoCallActive = true;
+                document.getElementById('videoCallContainer').classList.remove('hidden');
+                document.getElementById('chatContainer').style.display = 'none';
+                
+                addCallMessage(`Sarah: ${LANGUAGES[callLanguage].greeting}`, 'ai');
+            }
+        }
+
+        // Ask Random Question in Call
+        function askRandomQuestionInCall() {
+            const questions = SARAH_QUESTIONS[callLanguage];
+            if (questions && questions.length > 0) {
+                const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+                addCallMessage(`Sarah: ${randomQuestion}`, 'ai');
+                speakWithVoice(randomQuestion, callLanguage);
+            }
+        }
+
+        // End Video Call
+        function endVideoCall() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            
+            if (callInterval) {
+                clearInterval(callInterval);
+                callInterval = null;
+            }
+            
+            if (callRecognition && isCallVoiceRecognitionActive) {
+                callRecognition.stop();
+                isCallVoiceRecognitionActive = false;
+            }
+            
+            if (isRecording) {
+                stopRecording();
+            }
+            
+            if (isFullscreen) {
+                exitFullscreen();
+            }
+            
+            document.getElementById('videoCallContainer').classList.add('hidden');
+            document.getElementById('chatContainer').style.display = 'block';
+            isVideoCallActive = false;
+            
+            document.getElementById('navVideoCall').classList.remove('bg-red-500');
+            document.getElementById('navVideoCall').classList.add('bg-white/20');
+            document.getElementById('navVideoCall').innerHTML = '<i class="fas fa-video mr-2"></i>Appel Vidéo';
+            
+            addMessage("Appel vidéo terminé. Vous pouvez à tout moment relancer un appel si vous voulez !", 'ai');
+        }
+
+        // Toggle Microphone
+        function toggleMicrophone() {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                audioTrack.enabled = !audioTrack.enabled;
+                const icon = document.getElementById('toggleMic').querySelector('i');
+                icon.className = audioTrack.enabled ? 'fas fa-microphone' : 'fas fa-microphone-slash';
+                document.getElementById('toggleMic').style.backgroundColor = audioTrack.enabled ? '' : '#ef4444';
+            }
+        }
+
+        // Toggle Camera
+        function toggleCamera() {
+            if (localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                videoTrack.enabled = !videoTrack.enabled;
+                const icon = document.getElementById('toggleVideo').querySelector('i');
+                icon.className = videoTrack.enabled ? 'fas fa-video' : 'fas fa-video-slash';
+                document.getElementById('toggleVideo').style.backgroundColor = videoTrack.enabled ? '' : '#ef4444';
+            }
+        }
+
+        // Toggle Call Voice Recognition
+        function toggleCallVoiceRecognition() {
+            if (!isCallVoiceRecognitionActive) {
+                if (callRecognition) {
+                    callRecognition.start();
+                    isCallVoiceRecognitionActive = true;
+                    addCallMessage("Sarah: Reconnaissance vocale activée. Parlez-moi maintenant !", 'ai');
+                }
+            } else {
+                if (callRecognition) {
+                    callRecognition.stop();
+                    isCallVoiceRecognitionActive = false;
+                    document.getElementById('toggleCallVoice').innerHTML = '<i class="fas fa-microphone-alt mr-2"></i>Reconnaissance';
+                    document.getElementById('toggleCallVoice').classList.remove('bg-green-500');
+                    document.getElementById('toggleCallVoice').classList.add('bg-blue-500');
+                    addCallMessage("Sarah: Reconnaissance vocale désactivée.", 'ai');
+                }
+            }
+        }
+
+        // Toggle Audio Recording
+        function toggleAudioRecording() {
+            if (!isRecording) {
+                startAudioRecording();
+            } else {
+                stopRecording();
+            }
+        }
+
+        // Start Audio Recording
+        async function startAudioRecording() {
+            try {
+                if (!localStream) {
+                    alert("Veuillez d'abord démarrer un appel vidéo");
+                    return;
+                }
+                
+                audioChunks = [];
+                const audioStream = localStream.clone();
+                mediaRecorder = new RecordRTC(audioStream, {
+                    type: 'audio',
+                    mimeType: 'audio/webm',
+                    recorderType: RecordRTC.StereoAudioRecorder,
+                    numberOfAudioChannels: 1,
+                    desiredSampRate: 16000
+                });
+                
+                mediaRecorder.startRecording();
+                isRecording = true;
+                
+                document.getElementById('toggleRecording').innerHTML = '<i class="fas fa-stop mr-2"></i>Arrêter enregistrement';
+                document.getElementById('toggleRecording').classList.remove('bg-gray-200');
+                document.getElementById('toggleRecording').classList.add('bg-red-500', 'text-white');
+                document.getElementById('recordingStatus').classList.remove('hidden');
+                document.getElementById('recordingModal').classList.remove('hidden');
+                
+                recordingStartTime = new Date();
+                startRecordingTimer();
+                
+                addCallMessage("Sarah: Enregistrement audio démarré.", 'ai');
+                
+            } catch (error) {
+                console.error("Recording error:", error);
+                alert("Impossible de démarrer l'enregistrement");
+            }
+        }
+
+        // Stop Recording
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stopRecording(() => {
+                    const audioBlob = mediaRecorder.getBlob();
+                    const audioURL = URL.createObjectURL(audioBlob);
+                    
+                    document.getElementById('downloadRecording').href = audioURL;
+                    document.getElementById('downloadRecording').download = `appel_sarah_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.mp3`;
+                    
+                    isRecording = false;
+                    document.getElementById('toggleRecording').innerHTML = '<i class="fas fa-circle mr-2"></i>Enregistrer';
+                    document.getElementById('toggleRecording').classList.remove('bg-red-500', 'text-white');
+                    document.getElementById('toggleRecording').classList.add('bg-gray-200');
+                    document.getElementById('recordingStatus').classList.add('hidden');
+                    document.getElementById('recordingModal').classList.add('hidden');
+                    document.getElementById('downloadRecording').classList.remove('hidden');
+                    
+                    if (recordingInterval) {
+                        clearInterval(recordingInterval);
+                        recordingInterval = null;
+                    }
+                    
+                    addCallMessage("Sarah: Enregistrement audio terminé. Vous pouvez télécharger le fichier.", 'ai');
+                });
+            }
+        }
+
+        // Cancel Recording
+        function cancelRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stopRecording();
+                isRecording = false;
+                document.getElementById('recordingModal').classList.add('hidden');
+                document.getElementById('toggleRecording').innerHTML = '<i class="fas fa-circle mr-2"></i>Enregistrer';
+                document.getElementById('toggleRecording').classList.remove('bg-red-500', 'text-white');
+                document.getElementById('toggleRecording').classList.add('bg-gray-200');
+                document.getElementById('recordingStatus').classList.add('hidden');
+                
+                if (recordingInterval) {
+                    clearInterval(recordingInterval);
+                    recordingInterval = null;
+                }
+                
+                addCallMessage("Sarah: Enregistrement annulé.", 'ai');
+            }
+        }
+
+        // Start Recording Timer
+        function startRecordingTimer() {
+            recordingInterval = setInterval(() => {
+                const now = new Date();
+                const diff = now - recordingStartTime;
+                const minutes = Math.floor(diff / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+                document.getElementById('recordingTimer').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // Start Call Timer
+        function startCallTimer() {
+            callInterval = setInterval(() => {
+                const now = new Date();
+                const diff = now - callStartTime;
+                const minutes = Math.floor(diff / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+                document.getElementById('callTimer').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                dailyStatsData.time = minutes;
+                updateDailyStatsDisplay();
+            }, 1000);
+        }
+
+        // Toggle Fullscreen
+        function toggleFullscreen() {
+            if (!isFullscreen) {
+                enterFullscreen(document.getElementById('videoCallContainer'));
+            } else {
+                exitFullscreen();
+            }
+        }
+
+        // Enter Fullscreen
+        function enterFullscreen(element) {
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.mozRequestFullScreen) {
+                element.mozRequestFullScreen();
+            } else if (element.webkitRequestFullscreen) {
+                element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) {
+                element.msRequestFullscreen();
+            }
+            isFullscreen = true;
+            document.getElementById('fullscreenBtn').innerHTML = '<i class="fas fa-compress mr-2"></i>Quitter plein écran';
+            document.getElementById('videoCallContainer').classList.add('fullscreen-mode');
+        }
+
+        // Exit Fullscreen
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+            isFullscreen = false;
+            document.getElementById('fullscreenBtn').innerHTML = '<i class="fas fa-expand mr-2"></i>Plein écran';
+            document.getElementById('videoCallContainer').classList.remove('fullscreen-mode');
+        }
+
+        // Handle Fullscreen Change
+        function handleFullscreenChange() {
+            isFullscreen = !!(document.fullscreenElement || document.mozFullScreenElement || 
+                            document.webkitFullscreenElement || document.msFullscreenElement);
+            document.getElementById('fullscreenBtn').innerHTML = isFullscreen ? 
+                '<i class="fas fa-compress mr-2"></i>Quitter plein écran' : 
+                '<i class="fas fa-expand mr-2"></i>Plein écran';
+            
+            if (isFullscreen) {
+                document.getElementById('videoCallContainer').classList.add('fullscreen-mode');
+            } else {
+                document.getElementById('videoCallContainer').classList.remove('fullscreen-mode');
+            }
+        }
+
+        // Send Message
+        async function sendMessage() {
+            const message = document.getElementById('userInput').value.trim();
+            if (!message) return;
+            
+            // Hide Sarah's question if displayed
+            document.getElementById('sarahQuestionContainer').classList.add('hidden');
+            
+            addMessage(message, 'user');
+            document.getElementById('userInput').value = '';
+            
+            dailyStatsData.messages++;
+            updateDailyStatsDisplay();
+            saveStats();
+            updateConversationHistory();
+            
+            document.getElementById('typingIndicator').classList.remove('hidden');
+            
+            try {
+                let response;
+                document.getElementById('typingAction').textContent = "réfléchit";
+                
+                if (CONFIG.currentMode === 'image' || message.toLowerCase().includes('dessine') || 
+                    message.toLowerCase().includes('image') || message.toLowerCase().includes('draw') || 
+                    message.toLowerCase().includes('sala image')) {
+                    
+                    document.getElementById('typingAction').textContent = "génère une image";
+                    response = await generateImage(message);
+                    dailyStatsData.images++;
+                    
+                } else if (CONFIG.currentMode === 'search' || message.toLowerCase().includes('actualités') || 
+                          message.toLowerCase().includes('recherche') || message.toLowerCase().includes('news') ||
+                          message.toLowerCase().includes('search') || message.toLowerCase().includes('koluka')) {
+                    
+                    document.getElementById('typingAction').textContent = "recherche sur le web";
+                    response = await searchWeb(message);
+                    dailyStatsData.searches++;
+                    
+                } else {
+                    document.getElementById('typingAction').textContent = "réfléchit";
+                    response = await getAIResponse(message, CONFIG.currentLanguage);
+                }
+                
+                addMessage(response, 'ai');
+                
+                if (isVoiceEnabled || CONFIG.currentMode === 'voice') {
+                    speakWithVoice(response, CONFIG.currentLanguage);
+                }
+                
+                updateConnectionStatus(true);
+                updateDailyStatsDisplay();
+                saveStats();
+                updateConversationHistory();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage("Désolé, je rencontre une difficulté technique. Pourriez-vous réessayer ?", 'ai');
+                updateConnectionStatus(false);
+            } finally {
+                document.getElementById('typingIndicator').classList.add('hidden');
+            }
+        }
+
+        // Send Call Message
+        async function sendCallMessage() {
+            const message = document.getElementById('callChatInput').value.trim();
+            if (!message) return;
+            
+            addCallMessage(`Vous: ${message}`, 'user');
+            document.getElementById('callChatInput').value = '';
+            
+            try {
+                const response = await getAIResponse(message, callLanguage);
+                addCallMessage(`Sarah: ${response}`, 'ai');
+                speakWithVoice(response, callLanguage);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                addCallMessage("Sarah: Désolé, je n'ai pas pu traiter votre demande.", 'ai');
+            }
+        }
+
+        // Process Call Question
+        async function processCallQuestion(question) {
+            if (!question.trim()) return;
+            
+            try {
+                const response = await getAIResponse(question, callLanguage);
+                addCallMessage(`Sarah: ${response}`, 'ai');
+                speakWithVoice(response, callLanguage);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                addCallMessage("Sarah: Je n'ai pas compris votre demande s'il vous plait.", 'ai');
+            }
+        }
+
+        // Generate Image
+        async function generateImage(prompt) {
+            let cleanPrompt = prompt.toLowerCase();
+            
+            const commands = ['dessine', 'dessine-moi', 'crée', 'génère', 'une image de', 'une photo de', 'une illustration de', 'draw', 'create', 'generate'];
+            commands.forEach(cmd => {
+                cleanPrompt = cleanPrompt.replace(cmd, '');
+            });
+            
+            cleanPrompt = cleanPrompt.trim();
+            if (cleanPrompt === '') cleanPrompt = 'chat';
+            
+            const encodedPrompt = encodeURIComponent(cleanPrompt);
+            const imageUrl = `${POLLINATIONS_AI_URL}/${encodedPrompt}`;
+            
+            return `Voici l'image que j'ai générée pour "${prompt}":<br>
+                    <img src="${imageUrl}" alt="${cleanPrompt}" class="generated-image">
+                    <div class="text-sm text-gray-300 mt-2">
+                        <i class="fas fa-info-circle mr-1"></i> Image générée avec Pollinations.ai
+                    </div>`;
+        }
+
+        // Search Web
+        async function searchWeb(query) {
+            try {
+                let cleanQuery = query;
+                const searchCommands = ['recherche', 'cherche', 'trouve', 'actualités', 'news', 'informations sur', 'search', 'find', 'look up'];
+                searchCommands.forEach(cmd => {
+                    cleanQuery = cleanQuery.replace(new RegExp(cmd, 'gi'), '');
+                });
+                cleanQuery = cleanQuery.trim();
+                
+                const response = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(cleanQuery)}&format=json&pretty=1&no_html=1&skip_disambig=1`);
+                
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                let result = `<div class="search-result">
+                    <strong><i class="fas fa-search mr-2"></i>Résultats pour "${cleanQuery}" :</strong><br><br>`;
+                
+                if (data.Abstract) {
+                    result += `<strong>Résumé :</strong> ${data.Abstract}<br><br>`;
+                }
+                
+                if (data.AbstractURL) {
+                    result += `<strong>Source :</strong> <a href="${data.AbstractURL}" target="_blank" class="search-link">${data.AbstractURL}</a><br><br>`;
+                }
+                
+                if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+                    result += `<strong>Sujets connexes :</strong><br>`;
+                    data.RelatedTopics.slice(0, 3).forEach(topic => {
+                        if (topic.Text) {
+                            result += `• ${topic.Text}<br>`;
+                        }
+                    });
+                }
+                
+                if (!data.Abstract && (!data.RelatedTopics || data.RelatedTopics.length === 0)) {
+                    result += `Aucun résultat trouvé. Essayez de reformuler votre recherche.`;
+                }
+                
+                result += `<br><div class="text-sm">
+                    <i class="fas fa-info-circle mr-1"></i> Recherche effectuée avec DuckDuckGo
+                </div></div>`;
+                
+                return result;
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                return "Je n'ai pas pu effectuer la recherche. Voici une réponse basée sur mes connaissances :<br><br>" + 
+                       await getAIResponse(query, CONFIG.currentLanguage);
+            }
+        }
+
+        // Get AI Response
+        async function getAIResponse(prompt, language = CONFIG.currentLanguage) {
+            try {
+                const response = await fetch(DEEPSEEK_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: CONFIG.model,
+                        messages: [
+                            {
+                                role: 'system',
+                                content: language === 'fr' ? 
+                                    'Tu es Sarah, une assistante IA française. Tu parles français, anglais et ligala  Tu es intelligente, serviable et professionnelle. Tu peux poser des questions aux utilisateurs pour engager la conversation.' :
+                                    language === 'en' ?
+                                    'You are Sarah, a French AI assistant. You speak French, English and Lingala (pronounced ligala). You are intelligent, helpful and professional. You can ask users questions to engage in conversation.' :
+                                    'Ozali Sarah, mosalisi ya IA ya Falansé. Ozali koloba français, anglais mpe lingala (ebengami ligala). Ozali na mayele, mosalisi mpe professionnel. Okoki kotuna ba-utilisateurs mpo na kosolola na bango.'
+                            },
+                            {
+                                role: 'user',
+                                content: prompt
+                            }
+                        ],
+                        max_tokens: 1000,
+                        temperature: 0.7
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data.choices[0].message.content;
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                
+                const promptLower = prompt.toLowerCase();
+                
+                if (promptLower.includes('bonjour') || promptLower.includes('salut') || 
+                    promptLower.includes('hello') || promptLower.includes('hi') || promptLower.includes('mboté')) {
+                    return language === 'fr' ? "Bonjour ! 👋 Je suis Sarah IA, ravie de vous rencontrer !" :
+                           language === 'en' ? "Hello! 👋 I'm Sarah AI, nice to meet you!" :
+                           "Mboté ! 👋 Nazali Sarah IA, esengo na ngai kokutana na yo!";
+                }
+                else if (promptLower.includes('qui es-tu') || promptLower.includes('présente-toi') || 
+                         promptLower.includes('who are you') || promptLower.includes('nani yo')) {
+                    return language === 'fr' ? "Je suis Sarah IA, une assistante conversationnelle. Je parle français, anglais et ligala!" :
+                           language === 'en' ? "I am Sarah AI, a conversational assistant. I speak French, English and Lingala  " :
+                           "Mboté , Nazali Sarah IA, mosalisi ya solola. Nalobaka français, anglais mpe ligala !";
+                }
+                else if (promptLower.includes('lingala') || promptLower.includes('ligala') || promptLower.includes('kitoko') || promptLower.includes('mboté')) {
+                    const randomPhrase = LINGALA_PHRASES.common[Math.floor(Math.random() * LINGALA_PHRASES.common.length)];
+                    return language === 'fr' ? 
+                        `En lingala (prononcé ligala): "${randomPhrase.lingala}" - Cela signifie: "${randomPhrase.french}"` :
+                        language === 'en' ?
+                        `In Lingala (pronounced ligala): "${randomPhrase.lingala}" - This means: "${randomPhrase.english}"` :
+                        `Na lingala (ebengami ligala): "${randomPhrase.lingala}" - Ezali koloba: "${randomPhrase.french}"`;
+                }
+                else {
+                    const responses = {
+                        'fr': [
+                            `Je comprends votre question sur "${prompt}". Je peux vous fournir une réponse détaillée et utile.`,
+                            `Intéressant ! Pour "${prompt}", je vais réfléchir à la meilleure façon de vous aider.`,
+                            `Merci pour cette question ! Je suis conçue pour traiter ce type de requête avec précision.`
+                        ],
+                        'en': [
+                            `I understand your question about "${prompt}". I can provide you with a detailed and useful answer.`,
+                            `Interesting! For "${prompt}", I will think about the best way to help you.`,
+                            `Thank you for this question! I am designed to handle this type of request accurately.`
+                        ],
+                        'ln': [
+                            `Nakokitisa motuna na yo троп "${prompt}". Nakoki kopesa yo eyano .`,
+                            `Esengo! Троп "${prompt}", nakokanisa ndenge ya kitoko mpo na kosalisa yo.`,
+                            `Matondo троп motuna oyo! Nasalami mpo na kosala type oyo ya request na précision.`
+                        ]
+                    };
+                    
+                    return responses[language][Math.floor(Math.random() * responses[language].length)];
+                }
+            }
+        }
+
+        // Add Message
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'mb-6';
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            
+            if (sender === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="flex justify-end">
+                        <div class="message-bubble-user p-4 md:p-5 max-w-[90%] md:max-w-[80%]">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="font-bold text-white flex items-center">
+                                    <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 flex items-center justify-center text-white text-xs mr-2">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    Vous
+                                </div>
+                                <div class="text-xs text-white/80">${timeString}</div>
+                            </div>
+                            <div class="text-white text-sm md:text-base leading-relaxed whitespace-pre-line">${text}</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="flex">
+                        <div class="message-bubble-ai p-4 md:p-5 max-w-[90%] md:max-w-[80%]">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="font-bold text-white flex items-center">
+                                    <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 flex items-center justify-center text-white text-xs mr-2 overflow-hidden">
+                                        <img src="SARAH AI.jpg" alt="Sarah IA" class="w-full h-full object-cover">
+                                    </div>
+                                    Sarah IA
+                                </div>
+                                <div class="text-xs text-gray-300">${timeString}</div>
+                            </div>
+                            <div class="text-white text-sm md:text-base leading-relaxed whitespace-pre-line">${text}</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('chatContainer').appendChild(messageDiv);
+            document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+            
+            messageDiv.style.opacity = '0';
+            setTimeout(() => {
+                messageDiv.style.transition = 'opacity 0.3s ease';
+                messageDiv.style.opacity = '1';
+            }, 10);
+            
+            currentConversation.push({ sender: sender, text: text, timestamp: now });
+            
+            return messageDiv;
+        }
+
+        // Add Call Message
+        function addCallMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'p-2 rounded-lg ' + (sender === 'user' ? 'bg-orange-50 text-right' : 'bg-gray-100');
+            messageDiv.textContent = text;
+            document.getElementById('callChatMessages').appendChild(messageDiv);
+            document.getElementById('callChatMessages').scrollTop = document.getElementById('callChatMessages').scrollHeight;
+            
+            messageDiv.style.opacity = '0';
+            setTimeout(() => {
+                messageDiv.style.transition = 'opacity 0.3s ease';
+                messageDiv.style.opacity = '1';
+            }, 10);
+        }
+
+        // Toggle Voice
+        function toggleVoice() {
+            isVoiceEnabled = !isVoiceEnabled;
+            
+            if (isVoiceEnabled) {
+                document.getElementById('navVoiceToggle').classList.add('bg-green-500');
+                document.getElementById('navVoiceToggle').innerHTML = '<i class="fas fa-volume-up"></i>';
+                addMessage("🔊 **Mode vocal activé !** Je vais maintenant parler mes réponses.", 'ai');
+                speakWithVoice("Mode vocal activé. Je suis maintenant à votre écoute.", CONFIG.currentLanguage);
+            } else {
+                document.getElementById('navVoiceToggle').classList.remove('bg-green-500');
+                document.getElementById('navVoiceToggle').innerHTML = '<i class="fas fa-microphone"></i>';
+                addMessage("🔇 Mode vocal désactivé.", 'ai');
+                
+                if ('speechSynthesis' in window) {
+                    speechSynthesis.cancel();
+                }
+            }
+            
+            document.getElementById('navVoiceToggle').classList.add('bounce-animation');
+            setTimeout(() => {
+                document.getElementById('navVoiceToggle').classList.remove('bounce-animation');
+            }, 1000);
+        }
+
+        // Update Daily Stats Display
+        function updateDailyStatsDisplay() {
+            document.getElementById('dailyMessages').textContent = dailyStatsData.messages;
+            document.getElementById('dailyTime').textContent = dailyStatsData.time + ' min';
+            document.getElementById('dailyCalls').textContent = dailyStatsData.calls;
+        }
+
+        // Initialize Daily Stats
+        function initDailyStats() {
+            const today = new Date().toDateString();
+            const savedStats = localStorage.getItem('sarah_daily_stats');
+            if (savedStats) {
+                const parsed = JSON.parse(savedStats);
+                if (parsed.date === today) {
+                    dailyStatsData = parsed.data;
+                }
+            }
+            updateDailyStatsDisplay();
+        }
+
+        // Save Stats
+        function saveStats() {
+            try {
+                const today = new Date().toDateString();
+                localStorage.setItem('sarah_daily_stats', JSON.stringify({
+                    date: today,
+                    data: dailyStatsData
+                }));
+                localStorage.setItem('sarah_conversation', JSON.stringify(currentConversation));
+            } catch (e) {
+                console.error('Save error:', e);
+            }
+        }
+
+        // Update Connection Status
+        function updateConnectionStatus(isConnected) {
+            const connectionStatus = document.getElementById('connectionStatus');
+            if (isConnected) {
+                connectionStatus.innerHTML = '<div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div><span class="text-xs">Tous systèmes OK</span>';
+                connectionStatus.className = 'flex items-center bg-green-100 text-green-800 text-xs px-2 md:px-3 py-1 rounded-full';
+            } else {
+                connectionStatus.innerHTML = '<div class="w-2 h-2 rounded-full bg-red-500 mr-2"></div><span class="text-xs">Connexion limitée</span>';
+                connectionStatus.className = 'flex items-center bg-red-100 text-red-800 text-xs px-2 md:px-3 py-1 rounded-full';
+            }
+        }
+
+        // Load Conversation History
+        function loadConversationHistory() {
+            try {
+                const savedConversation = localStorage.getItem('sarah_conversation');
+                if (savedConversation) {
+                    currentConversation = JSON.parse(savedConversation);
+                }
+            } catch (e) {
+                console.error('Load error:', e);
+            }
+        }
+
+        // Update Conversation History
+        function updateConversationHistory() {
+            const historyContainer = document.getElementById('conversationHistory');
+            historyContainer.innerHTML = '';
+            
+            const recentMessages = currentConversation.slice(-5);
+            
+            recentMessages.forEach(msg => {
+                const item = document.createElement('div');
+                item.className = 'conversation-item';
+                const time = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const text = msg.text.length > 50 ? msg.text.substring(0, 50) + '...' : msg.text;
+                item.textContent = `${time} - ${msg.sender === 'user' ? 'Vous' : 'Sarah'}: ${text}`;
+                historyContainer.appendChild(item);
+            });
+            
+            if (recentMessages.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = 'conversation-item text-gray-500 text-center';
+                emptyMsg.textContent = 'Aucune conversation récente';
+                historyContainer.appendChild(emptyMsg);
+            }
+        }
+
+        // Notification Animation
+        setInterval(() => {
+            const badges = document.querySelectorAll('.notification-badge');
+            badges.forEach(badge => {
+                badge.classList.toggle('notification-pulse');
+            });
+        }, 2000);
+    </script>
+</body>
+</html>
